@@ -7,23 +7,22 @@ updated: 2023-12-03
 
 # Provision Cloudflare with SCIM
 
-By connecting a System for Cross-domain Identity Management (SCIM) provider, you can provision access to the Cloudflare dashboard on a per-user basis.
+By connecting a System for Cross-domain Identity Management (SCIM) provider, you can provision access to the Cloudflare dashboard on a per-user basis, mastered from your IDP.
 
-Currently, we only provide SCIM support for Microsoft Entra and Okta in Self-Hosted Access applications.
-
-For more information about SCIM support, refer to the [Announcing SCIM support for Cloudflare Access & Gateway](https://blog.cloudflare.com/access-and-gateway-with-scim/) blog post.
+Currently, we only provide SCIM support for Enterprise customers, and only from Microsoft Entra and Okta.
+In order to get this set up, reach out to your account team, and ask for 
 
 ## Limitations
 
-- You cannot update [user attributes](/cloudflare-one/policies/gateway/identity-selectors/) from the identity provider.
 - If a user is the only Super Administrator on an Enterprise account, they will not be deprovisioned.
-- Currently, Cloudflare does not support Okta Integration Network (OIN) integration. This integration is in review.
+- We do not currently support Domain Scoped Roles provisioning via SCIM, only account-scoped roles. We are working on this limitation
+- We do not currently allow custom group names, in order to leave space for future development
 
 ## Prerequisites
 
 - Cloudflare provisioning with SCIM is only available to Enterprise customers and requires a Cloudflare-specific feature flag. Contact your account team for more information.
-- In Cloudflare, [Super Administrator](/fundamentals/setup/manage-members/roles/) access on the account that maintains [your SSO](/cloudflare-one/applications/configure-apps/dash-sso-apps/).
-- In other identity providers (IdP), access to the `Create groups` and `Manage applications` [permissions](https://help.okta.com/en-us/Content/Topics/Security/custom-admin-role/about-role-permissions.htm).
+- In Cloudflare, [Super Administrator](/fundamentals/setup/manage-members/roles/) access on the account 
+- In your IDP, the ability to create applications, as well as groups
 
 ---
 
@@ -38,26 +37,13 @@ For more information about SCIM support, refer to the [Announcing SCIM support f
    | User    | Memberships      | Read       |
    | User    | Memberships      | Edit       |
 
-2. Add the following under **Account Resources**:
 
-   | Action  | Account          |
-   | ------- | ---------------- |
-   | Include | \<account name\> |
-
-3. Under **Account Resources**, select the specific account to include or exclude from the dropdown menu.
-4. Select **Continue to summary**.
-5. Validate the permissions and select **Create Token**.
-6. Copy the token value.
+2. Under **Account Resources**, select the specific account to include or exclude from the dropdown menu.
+3. Select **Continue to summary**.
+4. Validate the permissions and select **Create Token**.
+5. Copy the token value.
 
 ---
-
-## Provision with Okta
-
-1. Log in the Okta Admin dashboard and go to **Directory** > **Groups**.
-2. Select **Add group** and name your group. Select **Save**.
-3. Select the group you created.
-4. Select **Assign people** and assign all Cloudflare Users to it.
-5. Select **Done**.
 
 ### Set up your Okta SCIM application.
 
@@ -89,23 +75,77 @@ For more information about SCIM support, refer to the [Announcing SCIM support f
    3. In the integration page, go to **Assignments** > **Assign** > **Assign to Groups**.
    4. Assign users to your Cloudflare SCIM group.
    5. Select **Done**.
+   6. This will provision all of the users affected to your Cloudflare account with "minimal account access"
 
 ### Configure user permissions on Okta
 
-1. In the tab bar, go to **Provisioning**. Select **Edit**.
-2. Enable **Create Users** and **Deactivate Users**. Select **Save**.
-3. Select **Add group** and add groups with the following names:
+1. Select **Directory**, **Groups**, **Add group** and add groups with the following names:
+   `CF-<your_account_ID> - <Role_Name>`
 
-   - `Administrator Read Only`
-   - `Administrator`
-   - `Billing`
-   - `Super Administrator - All Privileges`
+The list of available roles are the following:
 
-4. Go to **Push Groups** and select the gear icon.
-5. Disable **Rename groups**. Select **Save**.
-6. Within the **Push Groups** tab, select **Push Groups**.
-7. Add the groups you created.
-8. Select **Save**.
+Administrator
+Administrator Read Only
+Super Administrator (All Privileges)
+Analytics
+API Gateway
+API Gateway Read
+Audit Logs Viewer
+Billing
+Bot Management
+Cache Purge
+SSL/TLS, Caching, Performance, Page Rules, and Customization
+DNS
+Magic Network Monitoring Admin
+Magic Network Monitoring
+Magic Network Monitoring Read-Only
+Cloudflare Gateway
+HTTP Applications
+HTTP Applications Read
+Cloudflare Images
+Load Balancer
+Log Share
+Network Services Write (Magic)
+Network Services Read (Magic)
+Minimal Account Access
+Page Shield
+PAge Shield Read
+Hyperdrive Admin
+Hyperdrive Readonly
+Cloudflare R2 Admin
+Cloudflare R2 Read 
+Log Share Reader
+Cloudflare Stream
+Cloudflare Zero Trust
+Cloudflare DEX
+Cloudflare Zero Trust PII
+Cloudflare Zero Trust Read Only
+Cloudflare Zero Trust Reporting
+Transform Rules
+Trust and Safety
+Turnstile
+Turnstile Read
+Vectorize Admin
+Vectorize Readonly
+Firewall
+Waiting Room Admin
+Waiting Room Read
+Cloudflare Workers Admin
+Zaraz Admin
+Zaraz Edit
+Zaraz Readonly
+Zone Versioning (Account-Wide)
+Zone Versioning Read (Account-Wide)
+   
+
+
+2. In the Application object, go to **Provisioning**. Select **Edit**.
+3. Enable **Create Users** and **Deactivate Users**. Select **Save**.
+5. Go to **Push Groups** and make sure the appropriate group matches the existing group of the same name on Cloudflare
+6. Disable **Rename groups**. Select **Save**.
+7. Within the **Push Groups** tab, select **Push Groups**.
+8. Add the groups you created.
+9. Select **Save**.
 
 Adding any users to these groups will grant them the role. Removing the users from the identity provider will remove them from the associated role.
 
@@ -133,7 +173,65 @@ Refer to [Roles](/fundamentals/setup/manage-members/roles/) more details.
 
 Currently, groups need to match a specific format to provision specific Cloudflare account-level roles. Cloudflare is in the process of adding Cloudflare Groups, which can take in freeform group names in the future.
 
-These permissions work on an exact string match with the prefix `CF-<your_account_id> - <roleName>`
+These permissions work on an exact string match with the form
+
+   `CF-<your_account_ID> - <Role_Name>`
+
+The list of available roles are the following:
+
+Administrator
+Administrator Read Only
+Super Administrator (All Privileges)
+Analytics
+API Gateway
+API Gateway Read
+Audit Logs Viewer
+Billing
+Bot Management
+Cache Purge
+SSL/TLS, Caching, Performance, Page Rules, and Customization
+DNS
+Magic Network Monitoring Admin
+Magic Network Monitoring
+Magic Network Monitoring Read-Only
+Cloudflare Gateway
+HTTP Applications
+HTTP Applications Read
+Cloudflare Images
+Load Balancer
+Log Share
+Network Services Write (Magic)
+Network Services Read (Magic)
+Minimal Account Access
+Page Shield
+PAge Shield Read
+Hyperdrive Admin
+Hyperdrive Readonly
+Cloudflare R2 Admin
+Cloudflare R2 Read 
+Log Share Reader
+Cloudflare Stream
+Cloudflare Zero Trust
+Cloudflare DEX
+Cloudflare Zero Trust PII
+Cloudflare Zero Trust Read Only
+Cloudflare Zero Trust Reporting
+Transform Rules
+Trust and Safety
+Turnstile
+Turnstile Read
+Vectorize Admin
+Vectorize Readonly
+Firewall
+Waiting Room Admin
+Waiting Room Read
+Cloudflare Workers Admin
+Zaraz Admin
+Zaraz Edit
+Zaraz Readonly
+Zone Versioning (Account-Wide)
+Zone Versioning Read (Account-Wide)
+   
 
 Refer to [Roles](/fundamentals/setup/manage-members/roles/) more details.
 
