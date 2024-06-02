@@ -6,56 +6,54 @@ weight: 4
 
 # Role scopes
 
-When you assign domain specific roles to account members, you can scope these roles to apply to all domains or various combinations of included and excluded domains.
+At Cloudflare, we are extending our role model to be significantly more flexible with scopes. As of today, users can apply roles to a whole account, or specific domains within that account, but we are looking to expand these into other resources in the future.
+
+A scope is one of 3 pieces of information needed to create a membership (a User, a role, and a scope)
+
+When you assign domain specific roles to account members, they grant specific access to a given set of zones.
+
+In order to assign your users a set of appropriate permissions, multiple policies can be assigned in order to mix and match appropriate account and domain level access.
+
+E.g. A user should be able to read everything across an account, but only have the permission to purge the cache for 1 production zone, and the ability to fully administer a staging zone.
+3 Policies can be assigned to this user:
+1) An account-wide "Administrator Read Only" role
+2) A Domain Scoped role to the production zone with "Cache Domain Purge"
+3) A Domain Scoped role to the staging zone with "Domain Administrator"
+
 
 ---
 
 ## Choose role scopes
 
+We have different sets of roles for each type of scope.
 You choose the scope of a role when you [add a member](/fundamentals/setup/manage-members/manage/) to your account.
 
 {{<Aside type="note">}}
-You need to choose to assign either an Account Scope role or Domain Scope role. You cannot combine both scope roles for the same member. 
+You need to choose to assign either an Account Scoped role or Domain Scoped role in a given policy. You cannot combine both types of roles in the same policy, but can assign multiple policies to the same member as a separate step. 
 {{</Aside>}}
 ### All domains
 
-If you want the member to have a role that applies to all domains within your account, use the following combination of fields.
+If you want the member to have a role that applies across your account, use the following combination of fields.
 
 | Field | Value |
 | --- | --- |
 | Operator | *Include* |
 | Type | *All domains* |
 
-{{<Aside type="note">}}
+### Individual Domains
 
-You can only assign [account-scoped roles](/fundamentals/setup/manage-members/roles/#account-scoped-roles) to members who have access to all domains.
-
-{{</Aside>}}
-
-### Excluding specific domains
-
-If you want the member to have roles associated with most domains, but not one or two specific, more restricted domains, use the following combination of fields.
+If you want the member to have a role that applies only to a given domain within your account, use the following combination of fields.
 
 | Field | Value |
 | --- | --- |
 | Operator | *Include* |
-| Type | *All domains* |
-
-| Field | Value |
-| --- | --- |
-| Operator | *Exclude* |
 | Type | *A specific domain* |
-| Name | `example.com` |
+| Name | The domain you want included |
 
-{{<Aside type="note">}}
-
-If you limit permissions to any domain, you can only assign [domain-scoped roles](/fundamentals/setup/manage-members/roles/#domain-scoped-roles) to these members.
-
-{{</Aside>}}
 
 ### Domain groups
 
-If you want a member with access to a group of specific domains, you can also create a **Domain Group**.
+If you want a member to have access to a group of predefined domains, you can also create a **Domain Group**.
 
 #### Create group
 
