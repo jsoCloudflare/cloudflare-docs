@@ -8,7 +8,7 @@ meta:
 
 # Account members
 
-With every Cloudflare plan, you can add multiple members to your account and assign them a variety of roles.
+In any Cloudflare account, you can collaborate with others by adding them as members to your account, and control their access with a variety of roles
 
 ## Resources
 
